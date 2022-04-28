@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"net/http"
+	"net/url"
 	"strings"
 	"time"
 )
@@ -68,10 +69,10 @@ func wikipediaEndpointCall(article string) (*LinksEndpointOutput, error) {
 		Timeout: time.Second * 10,
 	}
 
-	endpoint := fmt.Sprintf("https://en.wikipedia.org/w/api.php?action=parse&format=json&page=%v&prop=links", article)
+	endpoint := fmt.Sprintf("https://en.wikipedia.org/w/api.php?action=parse&format=json&page=%v&prop=links", url.QueryEscape(article))
 	resp, err := client.Get(endpoint)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to call %v: %w", endpoint, err)
 	}
 	respBody, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -81,7 +82,7 @@ func wikipediaEndpointCall(article string) (*LinksEndpointOutput, error) {
 
 	var linkEndpointOutput LinksEndpointOutput
 	if err := json.Unmarshal(respBody, &linkEndpointOutput); err != nil {
-		return nil, err
+		return nil, fmt.Errorf("failed to unmarshal response body for article %v, body: %v error: %w", article, string(respBody), err)
 	}
 
 	return &linkEndpointOutput, nil

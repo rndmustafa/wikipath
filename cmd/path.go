@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"time"
 	"wikicrawler-go/pathing"
 
 	"github.com/sirupsen/logrus"
@@ -22,10 +23,13 @@ var pathCmd = &cobra.Command{
 		start := args[0]
 		end := args[1]
 
+		startTime := time.Now()
 		path, err := pathing.BFS(start, end)
+		elapsedTime := time.Since(startTime)
+
 		if err != nil {
 			logrus.Panic(err)
 		}
-		logrus.Info(path)
+		logrus.Infof("Path: %v Time elapsed: %v", path, elapsedTime)
 	},
 }
