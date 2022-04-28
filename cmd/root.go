@@ -1,8 +1,16 @@
 package cmd
 
 import (
+	"log"
+
 	"github.com/spf13/cobra"
 )
+
+var verbose bool
+
+func init() {
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "verbose", "v", false, "verbose flag for debug level logs")
+}
 
 var rootCmd = &cobra.Command{
 	Use:   "wiki",
@@ -11,6 +19,6 @@ var rootCmd = &cobra.Command{
 
 func Execute() {
 	if err := rootCmd.Execute(); err != nil {
-		panic(err)
+		log.Panic(err)
 	}
 }
