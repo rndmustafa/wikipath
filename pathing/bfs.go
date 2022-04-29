@@ -2,7 +2,11 @@ package pathing
 
 import "errors"
 
-func BFS(start, end string) ([]string, error) {
+func Search(start, end string) ([]string, error) {
+	return bfs(start, end, getLinks)
+}
+
+func bfs(start, end string, getLinksFunc func(string) ([]string, error)) ([]string, error) {
 	if start == end {
 		return []string{}, nil
 	}
@@ -16,7 +20,7 @@ func BFS(start, end string) ([]string, error) {
 		current := frontier[0]
 		frontier = frontier[1:]
 
-		links, err := getLinks(current)
+		links, err := getLinksFunc(current)
 		if err != nil {
 			return nil, err
 		}

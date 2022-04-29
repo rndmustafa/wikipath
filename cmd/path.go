@@ -24,7 +24,7 @@ var pathCmd = &cobra.Command{
 		end := args[1]
 
 		startTime := time.Now()
-		path, err := pathing.BFS(start, end)
+		path, err := pathing.Search(start, end)
 		elapsedTime := time.Since(startTime)
 
 		if err != nil {
