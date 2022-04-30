@@ -1,4 +1,4 @@
-module wikicrawler-go
+module wikipath
 
 go 1.18
 

@@ -1,6 +1,6 @@
 package main
 
-import "wikicrawler-go/cmd"
+import "wikipath/cmd"
 
 func main() {
 	cmd.Execute()

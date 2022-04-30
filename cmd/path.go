@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"time"
-	"wikicrawler-go/pathing"
+	"wikipath/pathing"
 
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
