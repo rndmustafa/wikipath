@@ -2,7 +2,7 @@ package pathing
 
 import "testing"
 
-func TestFilterLinks(t *testing.T) {
+func TestFilterLinks_MixedInput_FilteredLinks(t *testing.T) {
 	output := &LinksEndpointOutput{
 		Parse: ParseObject{
 			Links: []LinkObject{
