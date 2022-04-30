@@ -3,7 +3,7 @@ package pathing
 import "testing"
 
 func TestFilterLinks_MixedInput_FilteredLinks(t *testing.T) {
-	output := &LinksEndpointOutput{
+	output := &ParseOutput{
 		Parse: ParseObject{
 			Links: []LinkObject{
 				{ArticleName: "Flower"},

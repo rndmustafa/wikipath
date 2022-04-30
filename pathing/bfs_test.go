@@ -43,6 +43,12 @@ func TestBFSSearch_NoPath_EmptyPathSlice(t *testing.T) {
 	}
 }
 
+func BenchmarkSearch(b *testing.B) {
+	for i := 0; i < b.N; i++ {
+		Search("Bee", "Flower")
+	}
+}
+
 func equalsSlice(first []string, second []string) bool {
 	if len(first) != len(second) {
 		return false

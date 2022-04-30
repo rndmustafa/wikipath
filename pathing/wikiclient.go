@@ -1,16 +1,17 @@
 package pathing
 
 import (
+	"compress/gzip"
 	"encoding/json"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"net/http"
 	"net/url"
 	"strings"
 	"time"
 )
 
-type LinksEndpointOutput struct {
+type ParseOutput struct {
 	Parse ParseObject
 }
 
@@ -26,22 +27,26 @@ type LinkObject struct {
 	ArticleName string `json:"*"`
 }
 
+var client = http.Client{
+	Timeout: time.Second * 10,
+}
+
 func getLinks(article string) ([]string, error) {
-	linksEndpointOutput, err := wikipediaEndpointCall(article)
+	parseOutput, err := wikipediaEndpointCall(article)
 	if err != nil {
 		return nil, err
 	}
 
-	links := filterLinks(linksEndpointOutput, article)
+	links := filterLinks(parseOutput, article)
 
 	return links, nil
 }
 
-func filterLinks(linksEndpointOutput *LinksEndpointOutput, parentArticle string) []string {
+func filterLinks(parseOutput *ParseOutput, parentArticle string) []string {
 	filteredLinks := []string{}
 	invalidPrefixes := []string{"File:", "Template:", "Category:", "Help:", "Special:", "Wikipedia:", "Portal:", "Template_talk:"}
 
-	for _, linkObject := range linksEndpointOutput.Parse.Links {
+	for _, linkObject := range parseOutput.Parse.Links {
 		if validLink(linkObject.ArticleName, parentArticle, invalidPrefixes) {
 			filteredLinks = append(filteredLinks, linkObject.ArticleName)
 		}
@@ -64,26 +69,38 @@ func validLink(articleName string, parentArticle string, invalidPrefixes []strin
 	return true
 }
 
-func wikipediaEndpointCall(article string) (*LinksEndpointOutput, error) {
-	client := &http.Client{
-		Timeout: time.Second * 10,
-	}
-
+func wikipediaEndpointCall(article string) (*ParseOutput, error) {
 	endpoint := fmt.Sprintf("https://en.wikipedia.org/w/api.php?action=parse&format=json&page=%v&prop=links", url.QueryEscape(article))
-	resp, err := client.Get(endpoint)
+	req, _ := http.NewRequest("GET", endpoint, nil)
+	req.Header.Add("Accept-Encoding", "gzip")
+
+	resp, err := client.Do(req)
 	if err != nil {
 		return nil, fmt.Errorf("failed to call %v: %w", endpoint, err)
 	}
-	respBody, err := ioutil.ReadAll(resp.Body)
+
+	var reader io.ReadCloser
+	switch resp.Header.Get("Content-Encoding") {
+	case "gzip":
+		reader, err = gzip.NewReader(resp.Body)
+		if err != nil {
+			return nil, err
+		}
+		defer reader.Close()
+	default:
+		reader = resp.Body
+	}
+
+	respBody, err := io.ReadAll(reader)
 	if err != nil {
 		return nil, err
 	}
 	defer resp.Body.Close()
 
-	var linkEndpointOutput LinksEndpointOutput
-	if err := json.Unmarshal(respBody, &linkEndpointOutput); err != nil {
+	var parseOutput ParseOutput
+	if err := json.Unmarshal(respBody, &parseOutput); err != nil {
 		return nil, fmt.Errorf("failed to unmarshal response body for article %v, body: %v error: %w", article, string(respBody), err)
 	}
 
-	return &linkEndpointOutput, nil
+	return &parseOutput, nil
 }
