@@ -24,7 +24,7 @@ func TestBFSSearch_ValidGraph_ValidPath(t *testing.T) {
 	}
 }
 
-func TestBFSSearch_NoPath_Error(t *testing.T) {
+func TestBFSSearch_NoPath_EmptyPathSlice(t *testing.T) {
 	var testGraph = map[string][]string{
 		"A": {"B", "C"},
 		"D": {},
@@ -35,7 +35,7 @@ func TestBFSSearch_NoPath_Error(t *testing.T) {
 	}
 
 	path, err := bfs("A", "D", getLinksTest)
-	if err == nil {
+	if err != nil {
 		t.Fatal(err)
 	}
 	if len(path) != 0 {

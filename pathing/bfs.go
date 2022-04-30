@@ -1,7 +1,5 @@
 package pathing
 
-import "errors"
-
 func Search(start, end string) ([]string, error) {
 	return bfs(start, end, getLinks)
 }
@@ -41,7 +39,7 @@ func bfs(start, end string, getLinksFunc func(string) ([]string, error)) ([]stri
 		discovered[current] = struct{}{}
 	}
 
-	return []string{}, errors.New("no path found")
+	return []string{}, nil
 }
 
 func getPath(article string, cameFrom map[string]string) []string {
