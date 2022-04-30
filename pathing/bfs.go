@@ -1,5 +1,7 @@
 package pathing
 
+import "github.com/sirupsen/logrus"
+
 func Search(start, end string) ([]string, error) {
 	return bfs(start, end, getLinks)
 }
@@ -17,6 +19,7 @@ func bfs(start, end string, getLinksFunc func(string) ([]string, error)) ([]stri
 	for len(frontier) > 0 {
 		current := frontier[0]
 		frontier = frontier[1:]
+		logrus.Debugf("Discovered Size: %v Frontier Size: %v Current: %v ", len(discovered), len(frontier), current)
 
 		links, err := getLinksFunc(current)
 		if err != nil {
